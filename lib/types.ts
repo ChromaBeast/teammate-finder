@@ -35,6 +35,10 @@ export interface GameConfig {
     accent: string;
     gradient: string;
   };
+  font: {
+    display: string;
+    body: string;
+  };
   teamSizes: {
     size: TeamSize;
     label: string;

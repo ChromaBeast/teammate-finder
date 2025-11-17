@@ -10,6 +10,10 @@ export const gameConfigs: GameConfig[] = [
       accent: '#FFFBF5',
       gradient: 'from-red-600 via-red-500 to-black',
     },
+    font: {
+      display: 'Oswald',
+      body: 'Rajdhani',
+    },
     teamSizes: [
       { size: 'duo', label: 'Find a Duo', price: 50, slots: 2 },
       { size: 'trio', label: 'Find 1 in Trio', price: 150, slots: 3 },
@@ -37,6 +41,10 @@ export const gameConfigs: GameConfig[] = [
       accent: '#F89A1E',
       gradient: 'from-orange-500 via-red-600 to-gray-900',
     },
+    font: {
+      display: 'Orbitron',
+      body: 'Orbitron',
+    },
     teamSizes: [
       { size: 'duo', label: 'Find a Duo', price: 50, slots: 2 },
       { size: 'trio', label: 'Find 1 in Trio', price: 150, slots: 3 },
@@ -62,6 +70,10 @@ export const gameConfigs: GameConfig[] = [
       accent: '#00D9FF',
       gradient: 'from-purple-600 via-blue-500 to-cyan-400',
     },
+    font: {
+      display: 'Rubik',
+      body: 'Rubik',
+    },
     teamSizes: [
       { size: 'duo', label: 'Find a Duo', price: 50, slots: 2 },
       { size: 'squad', label: 'Find Squad Member', price: 250, slots: 4 },
@@ -84,6 +96,10 @@ export const gameConfigs: GameConfig[] = [
       secondary: '#0A1428',
       accent: '#C89B3C',
       gradient: 'from-yellow-600 via-amber-500 to-gray-900',
+    },
+    font: {
+      display: 'Cinzel',
+      body: 'Cinzel',
     },
     teamSizes: [
       { size: 'duo', label: 'Find a Partner', price: 50, slots: 2 },

@@ -5,7 +5,7 @@ import { gameConfigs } from '@/lib/gameConfigs';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { Users, Clock, MapPin, Trophy, Sparkles, Zap } from 'lucide-react';
+import { Users, Clock, MapPin, Trophy, Crosshair, Zap, Shield, Target } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -68,7 +68,6 @@ export default function GamePage() {
     setLoading(true);
 
     try {
-      // Create order on backend
       const response = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,7 +84,6 @@ export default function GamePage() {
         throw new Error(order.error || 'Failed to create order');
       }
 
-      // Initialize Razorpay
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -95,7 +93,6 @@ export default function GamePage() {
         order_id: order.id,
         handler: async function (response: any) {
           try {
-            // Save to Firestore
             await addDoc(collection(db, 'teamRequests'), {
               userId: user.uid,
               userName: user.displayName || 'Anonymous',
@@ -143,279 +140,589 @@ export default function GamePage() {
     }
   };
 
-  // Game-specific styling
-  const gameStyles = {
-    valorant: {
-      containerClass: 'bg-gradient-to-br from-red-950/40 via-gray-950 to-black',
-      accentGlow: 'shadow-[0_0_30px_rgba(255,70,85,0.3)]',
-      borderGlow: `border-[${game.theme.primary}] shadow-[0_0_20px_rgba(255,70,85,0.2)]`,
-    },
-    apex: {
-      containerClass: 'bg-gradient-to-br from-orange-950/40 via-red-950/30 to-gray-950',
-      accentGlow: 'shadow-[0_0_30px_rgba(218,41,46,0.3)]',
-      borderGlow: `border-[${game.theme.primary}] shadow-[0_0_20px_rgba(218,41,46,0.2)]`,
-    },
-    fortnite: {
-      containerClass: 'bg-gradient-to-br from-purple-950/40 via-blue-950/30 to-gray-950',
-      accentGlow: 'shadow-[0_0_30px_rgba(123,63,242,0.3)]',
-      borderGlow: `border-[${game.theme.primary}] shadow-[0_0_20px_rgba(123,63,242,0.2)]`,
-    },
-    '2xko': {
-      containerClass: 'bg-gradient-to-br from-yellow-950/40 via-amber-950/30 to-gray-950',
-      accentGlow: 'shadow-[0_0_30px_rgba(212,175,55,0.3)]',
-      borderGlow: `border-[${game.theme.primary}] shadow-[0_0_20px_rgba(212,175,55,0.2)]`,
-    },
-  };
+  // VALORANT-specific layout
+  if (game.id === 'valorant') {
+    return (
+      <div className="min-h-screen bg-black" style={{ fontFamily: game.font.body }}>
+        <Navbar />
 
-  const currentStyle = gameStyles[game.id as keyof typeof gameStyles];
-
-  return (
-    <div className={`min-h-screen ${currentStyle.containerClass}`}>
-      <Navbar />
-
-      {/* Hero Section with Game Theme */}
-      <section className="relative py-16 overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-20"
-            style={{ backgroundColor: game.theme.primary }}
-          />
-          <div
-            className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-20"
-            style={{ backgroundColor: game.theme.accent }}
-          />
+        {/* Aggressive angular background */}
+        <div className="fixed inset-0 opacity-10 pointer-events-none">
+          <div className="absolute top-0 left-0 w-1/2 h-1/2 bg-gradient-to-br from-red-600 to-transparent"></div>
+          <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-gradient-to-tl from-red-600 to-transparent"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, #FF4655 0px, #FF4655 2px, transparent 2px, transparent 20px)',
+          }}></div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Game Title */}
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-4">
-              <Sparkles className="h-8 w-8 mr-3" style={{ color: game.theme.primary }} />
-              <h1
-                className="text-6xl md:text-7xl font-black tracking-tighter"
-                style={{
-                  color: game.theme.primary,
-                  textShadow: `0 0 40px ${game.theme.primary}40`,
-                }}
-              >
-                {game.name}
-              </h1>
-              <Sparkles className="h-8 w-8 ml-3" style={{ color: game.theme.primary }} />
+        <div className="relative z-10">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-black via-red-950/30 to-black border-b-4 border-[#FF4655] py-8">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center gap-4">
+                <div className="w-2 h-20 bg-[#FF4655]"></div>
+                <div>
+                  <h1 className="text-7xl font-black tracking-tighter text-[#FF4655] uppercase" style={{ fontFamily: game.font.display, letterSpacing: '0.05em' }}>
+                    VALORANT
+                  </h1>
+                  <p className="text-gray-400 text-xl font-semibold uppercase tracking-widest mt-1">TACTICAL SHOOTER // 5V5</p>
+                </div>
+                <Crosshair className="h-16 w-16 text-[#FF4655] ml-auto" />
+              </div>
             </div>
-            <p className="text-xl text-gray-300 font-medium">
-              Find your perfect squad and climb the ranks together
-            </p>
           </div>
 
-          {/* Team Size Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {/* Team Selection - Angular Cards */}
+          <div className="max-w-7xl mx-auto px-4 py-12">
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-1 h-8 bg-[#FF4655]"></div>
+                <h2 className="text-3xl font-black uppercase tracking-wider" style={{ fontFamily: game.font.display }}>
+                  SELECT MODE
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {game.teamSizes.map((team) => (
+                <button
+                  key={team.size}
+                  onClick={() => setSelectedTeamSize(team.size)}
+                  className={`relative group transition-all transform ${
+                    selectedTeamSize === team.size ? 'scale-105' : ''
+                  }`}
+                  style={{
+                    clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%)',
+                  }}
+                >
+                  <div className={`p-8 ${
+                    selectedTeamSize === team.size
+                      ? 'bg-gradient-to-br from-[#FF4655] to-red-900'
+                      : 'bg-gradient-to-br from-gray-900 to-gray-800 group-hover:from-gray-800 group-hover:to-gray-700'
+                  } border-2 ${selectedTeamSize === team.size ? 'border-[#FF4655]' : 'border-gray-700'}`}>
+                    <Target className={`h-12 w-12 mb-4 ${selectedTeamSize === team.size ? 'text-white' : 'text-gray-400'}`} />
+                    <h3 className="text-2xl font-black uppercase mb-2" style={{ fontFamily: game.font.display }}>
+                      {team.label.replace('Find a ', '').replace('Find 1 in ', '').replace('Find 1 in ', '')}
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm mb-3">
+                      <Users className="h-4 w-4" />
+                      <span>{team.slots} PLAYERS</span>
+                    </div>
+                    <div className="text-4xl font-black">₹{team.price}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Form */}
+            {selectedTeamSize && (
+              <div className="bg-gradient-to-br from-gray-900 to-black border-2 border-[#FF4655] p-8"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)' }}>
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-1 h-10 bg-[#FF4655]"></div>
+                  <h2 className="text-4xl font-black uppercase" style={{ fontFamily: game.font.display }}>AGENT DATA</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="text-sm font-black uppercase tracking-wider text-[#FF4655] mb-3 block">RANK</label>
+                    <select
+                      value={rank}
+                      onChange={(e) => setRank(e.target.value)}
+                      className="w-full px-4 py-4 bg-black border-2 border-[#FF4655]/30 focus:border-[#FF4655] outline-none text-lg uppercase font-semibold"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}
+                    >
+                      <option value="">SELECT RANK</option>
+                      {game.ranks.map((r) => (
+                        <option key={r} value={r}>{r.toUpperCase()}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-black uppercase tracking-wider text-[#FF4655] mb-3 block">REGION</label>
+                    <select
+                      value={region}
+                      onChange={(e) => setRegion(e.target.value)}
+                      className="w-full px-4 py-4 bg-black border-2 border-[#FF4655]/30 focus:border-[#FF4655] outline-none text-lg uppercase font-semibold"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}
+                    >
+                      <option value="">SELECT REGION</option>
+                      <option value="mumbai">MUMBAI</option>
+                      <option value="singapore">SINGAPORE</option>
+                      <option value="bahrain">BAHRAIN</option>
+                      <option value="hong-kong">HONG KONG</option>
+                      <option value="tokyo">TOKYO</option>
+                      <option value="sydney">SYDNEY</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-black uppercase tracking-wider text-[#FF4655] mb-3 block">PLAY TIME</label>
+                    <select
+                      value={playTime}
+                      onChange={(e) => setPlayTime(e.target.value)}
+                      className="w-full px-4 py-4 bg-black border-2 border-[#FF4655]/30 focus:border-[#FF4655] outline-none text-lg uppercase font-semibold"
+                      style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)' }}
+                    >
+                      <option value="">SELECT TIME</option>
+                      <option value="morning">MORNING (6-12)</option>
+                      <option value="afternoon">AFTERNOON (12-18)</option>
+                      <option value="evening">EVENING (18-24)</option>
+                      <option value="night">NIGHT (00-06)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="w-full py-6 bg-[#FF4655] hover:bg-red-600 disabled:bg-gray-700 font-black text-2xl uppercase tracking-wider transition-all"
+                  style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%)' }}
+                >
+                  {loading ? 'PROCESSING...' : user ? `DEPLOY - ₹${selectedOption?.price}` : 'AUTHENTICATE'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      </div>
+    );
+  }
+
+  // APEX LEGENDS-specific layout
+  if (game.id === 'apex') {
+    return (
+      <div className="min-h-screen bg-black" style={{ fontFamily: game.font.body }}>
+        <Navbar />
+
+        {/* Hexagonal tech pattern */}
+        <div className="fixed inset-0 opacity-5 pointer-events-none">
+          <svg width="100%" height="100%">
+            <defs>
+              <pattern id="hexagons" x="0" y="0" width="56" height="100" patternUnits="userSpaceOnUse">
+                <polygon points="28,2 52,17 52,49 28,64 4,49 4,17" fill="none" stroke="#F89A1E" strokeWidth="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hexagons)" />
+          </svg>
+        </div>
+
+        <div className="relative z-10">
+          {/* Header with hexagonal accent */}
+          <div className="bg-gradient-to-r from-orange-950/50 via-red-950/50 to-black border-b-2 border-[#F89A1E] py-10">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#F89A1E] blur-xl opacity-50"></div>
+                  <Shield className="h-20 w-20 text-[#F89A1E] relative z-10" />
+                </div>
+                <div>
+                  <h1 className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#F89A1E] to-[#DA292E]"
+                    style={{ fontFamily: game.font.display, letterSpacing: '0.1em' }}>
+                    APEX LEGENDS
+                  </h1>
+                  <p className="text-[#F89A1E] text-xl font-bold tracking-[0.3em] mt-2">BATTLE ROYALE // SQUAD-BASED</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Selection - Hexagonal style */}
+          <div className="max-w-7xl mx-auto px-4 py-12">
+            <div className="mb-10">
+              <h2 className="text-4xl font-black text-[#F89A1E] mb-2" style={{ fontFamily: game.font.display, letterSpacing: '0.15em' }}>
+                CHOOSE YOUR SQUAD
+              </h2>
+              <div className="h-1 w-32 bg-gradient-to-r from-[#F89A1E] to-transparent"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              {game.teamSizes.map((team) => (
+                <button
+                  key={team.size}
+                  onClick={() => setSelectedTeamSize(team.size)}
+                  className={`relative p-10 transition-all transform hover:scale-105 ${
+                    selectedTeamSize === team.size
+                      ? 'bg-gradient-to-br from-[#F89A1E] to-[#DA292E]'
+                      : 'bg-gradient-to-br from-gray-900 to-gray-800 hover:from-gray-800'
+                  } border-4 ${selectedTeamSize === team.size ? 'border-[#F89A1E]' : 'border-gray-700'}`}
+                  style={{
+                    clipPath: 'polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%)',
+                  }}
+                >
+                  <div className="text-center">
+                    <Users className={`h-16 w-16 mx-auto mb-4 ${selectedTeamSize === team.size ? 'text-white' : 'text-[#F89A1E]'}`} />
+                    <h3 className="text-3xl font-black mb-3" style={{ fontFamily: game.font.display, letterSpacing: '0.1em' }}>
+                      {team.label.toUpperCase()}
+                    </h3>
+                    <div className="text-5xl font-black">₹{team.price}</div>
+                    <p className="text-sm mt-2 opacity-75">{team.slots} LEGENDS</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Form */}
+            {selectedTeamSize && (
+              <div className="bg-gradient-to-br from-gray-900/90 to-black border-4 border-[#F89A1E]/50 p-10"
+                style={{ clipPath: 'polygon(3% 0%, 97% 0%, 100% 3%, 100% 97%, 97% 100%, 3% 100%, 0% 97%, 0% 3%)' }}>
+
+                <h2 className="text-5xl font-black text-[#F89A1E] mb-8" style={{ fontFamily: game.font.display, letterSpacing: '0.15em' }}>
+                  LEGEND PROFILE
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div>
+                    <label className="text-sm font-bold text-[#F89A1E] mb-3 block tracking-wider">RANK TIER</label>
+                    <select
+                      value={rank}
+                      onChange={(e) => setRank(e.target.value)}
+                      className="w-full px-5 py-4 bg-black/80 border-2 border-[#F89A1E]/30 focus:border-[#F89A1E] outline-none text-lg font-bold"
+                      style={{ clipPath: 'polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%)' }}
+                    >
+                      <option value="">Select Rank</option>
+                      {game.ranks.map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-[#F89A1E] mb-3 block tracking-wider">SERVER REGION</label>
+                    <select
+                      value={region}
+                      onChange={(e) => setRegion(e.target.value)}
+                      className="w-full px-5 py-4 bg-black/80 border-2 border-[#F89A1E]/30 focus:border-[#F89A1E] outline-none text-lg font-bold"
+                      style={{ clipPath: 'polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%)' }}
+                    >
+                      <option value="">Select Region</option>
+                      <option value="mumbai">Mumbai</option>
+                      <option value="singapore">Singapore</option>
+                      <option value="bahrain">Bahrain</option>
+                      <option value="hong-kong">Hong Kong</option>
+                      <option value="tokyo">Tokyo</option>
+                      <option value="sydney">Sydney</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-bold text-[#F89A1E] mb-3 block tracking-wider">PLAYTIME</label>
+                    <select
+                      value={playTime}
+                      onChange={(e) => setPlayTime(e.target.value)}
+                      className="w-full px-5 py-4 bg-black/80 border-2 border-[#F89A1E]/30 focus:border-[#F89A1E] outline-none text-lg font-bold"
+                      style={{ clipPath: 'polygon(5% 0%, 95% 0%, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0% 95%, 0% 5%)' }}
+                    >
+                      <option value="">Select Time</option>
+                      <option value="morning">Morning (6-12)</option>
+                      <option value="afternoon">Afternoon (12-18)</option>
+                      <option value="evening">Evening (18-24)</option>
+                      <option value="night">Night (00-06)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="w-full py-6 bg-gradient-to-r from-[#F89A1E] to-[#DA292E] hover:from-[#DA292E] hover:to-[#F89A1E] disabled:from-gray-700 disabled:to-gray-700 font-black text-2xl tracking-wider transition-all"
+                  style={{ clipPath: 'polygon(2% 0%, 98% 0%, 100% 10%, 100% 100%, 0% 100%, 0% 10%)' }}
+                >
+                  {loading ? 'PROCESSING...' : user ? `DEPLOY - ₹${selectedOption?.price}` : 'AUTHENTICATE'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      </div>
+    );
+  }
+
+  // FORTNITE-specific layout
+  if (game.id === 'fortnite') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0E27] via-purple-950 to-black" style={{ fontFamily: game.font.body }}>
+        <Navbar />
+
+        {/* Playful animated background */}
+        <div className="fixed inset-0 opacity-10 pointer-events-none overflow-hidden">
+          <div className="absolute top-10 left-10 w-64 h-64 bg-purple-500 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-72 h-72 bg-blue-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        </div>
+
+        <div className="relative z-10">
+          {/* Header - Playful style */}
+          <div className="bg-gradient-to-r from-purple-600/30 via-blue-600/30 to-cyan-500/30 backdrop-blur-sm border-b-8 border-[#7B3FF2] py-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center">
+                <h1 className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#7B3FF2] via-blue-500 to-[#00D9FF] mb-4 drop-shadow-2xl"
+                  style={{ fontFamily: game.font.display, letterSpacing: '0.05em' }}>
+                  FORTNITE
+                </h1>
+                <p className="text-[#00D9FF] text-2xl font-bold tracking-wide">BATTLE ROYALE // BUILD & FIGHT</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Selection - Rounded fun cards */}
+          <div className="max-w-6xl mx-auto px-4 py-16">
+            <div className="text-center mb-12">
+              <h2 className="text-5xl font-black text-white mb-3" style={{ fontFamily: game.font.display }}>
+                PICK YOUR MODE
+              </h2>
+              <div className="h-2 w-48 mx-auto bg-gradient-to-r from-[#7B3FF2] via-blue-500 to-[#00D9FF] rounded-full"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+              {game.teamSizes.map((team) => (
+                <button
+                  key={team.size}
+                  onClick={() => setSelectedTeamSize(team.size)}
+                  className={`relative p-12 rounded-3xl transition-all transform hover:scale-105 hover:rotate-1 ${
+                    selectedTeamSize === team.size
+                      ? 'bg-gradient-to-br from-[#7B3FF2] via-blue-600 to-[#00D9FF] shadow-2xl shadow-purple-500/50'
+                      : 'bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700'
+                  } border-4 ${selectedTeamSize === team.size ? 'border-[#00D9FF]' : 'border-transparent'}`}
+                >
+                  <div className="text-center">
+                    <div className={`inline-block p-6 rounded-full mb-6 ${
+                      selectedTeamSize === team.size ? 'bg-white/20' : 'bg-purple-500/20'
+                    }`}>
+                      <Users className="h-14 w-14" />
+                    </div>
+                    <h3 className="text-4xl font-black mb-4" style={{ fontFamily: game.font.display }}>
+                      {team.label}
+                    </h3>
+                    <div className="inline-block px-6 py-2 bg-white/10 rounded-full mb-4">
+                      <span className="text-lg">{team.slots} Players</span>
+                    </div>
+                    <div className="text-6xl font-black">₹{team.price}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Form - Playful rounded design */}
+            {selectedTeamSize && (
+              <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 backdrop-blur-xl rounded-3xl border-4 border-[#7B3FF2] p-10 shadow-2xl shadow-purple-500/30">
+
+                <h2 className="text-5xl font-black text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-[#7B3FF2] to-[#00D9FF]"
+                  style={{ fontFamily: game.font.display }}>
+                  Player Info
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div>
+                    <label className="text-lg font-bold text-[#00D9FF] mb-3 block">Rank</label>
+                    <select
+                      value={rank}
+                      onChange={(e) => setRank(e.target.value)}
+                      className="w-full px-6 py-4 bg-black/40 backdrop-blur-sm border-3 border-purple-500/50 focus:border-[#00D9FF] rounded-2xl outline-none text-lg font-bold"
+                    >
+                      <option value="">Choose Your Rank</option>
+                      {game.ranks.map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-lg font-bold text-[#00D9FF] mb-3 block">Region</label>
+                    <select
+                      value={region}
+                      onChange={(e) => setRegion(e.target.value)}
+                      className="w-full px-6 py-4 bg-black/40 backdrop-blur-sm border-3 border-purple-500/50 focus:border-[#00D9FF] rounded-2xl outline-none text-lg font-bold"
+                    >
+                      <option value="">Choose Region</option>
+                      <option value="mumbai">Mumbai</option>
+                      <option value="singapore">Singapore</option>
+                      <option value="bahrain">Bahrain</option>
+                      <option value="hong-kong">Hong Kong</option>
+                      <option value="tokyo">Tokyo</option>
+                      <option value="sydney">Sydney</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-lg font-bold text-[#00D9FF] mb-3 block">Play Time</label>
+                    <select
+                      value={playTime}
+                      onChange={(e) => setPlayTime(e.target.value)}
+                      className="w-full px-6 py-4 bg-black/40 backdrop-blur-sm border-3 border-purple-500/50 focus:border-[#00D9FF] rounded-2xl outline-none text-lg font-bold"
+                    >
+                      <option value="">Choose Time</option>
+                      <option value="morning">🌅 Morning</option>
+                      <option value="afternoon">☀️ Afternoon</option>
+                      <option value="evening">🌆 Evening</option>
+                      <option value="night">🌙 Night</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="w-full py-7 bg-gradient-to-r from-[#7B3FF2] via-blue-600 to-[#00D9FF] hover:from-[#00D9FF] hover:to-[#7B3FF2] disabled:from-gray-700 disabled:to-gray-700 font-black text-3xl rounded-2xl transition-all transform hover:scale-105 shadow-lg shadow-purple-500/50"
+                  style={{ fontFamily: game.font.display }}
+                >
+                  {loading ? 'Loading...' : user ? `Get Squad - ₹${selectedOption?.price}` : 'Sign In'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      </div>
+    );
+  }
+
+  // 2XKO-specific layout (Premium/Elegant)
+  if (game.id === '2xko') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0A1428] via-blue-950 to-black" style={{ fontFamily: game.font.body }}>
+        <Navbar />
+
+        {/* Elegant golden accents */}
+        <div className="fixed inset-0 opacity-5 pointer-events-none">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1/2 bg-[#D4AF37] blur-3xl"></div>
+        </div>
+
+        <div className="relative z-10">
+          {/* Header - Elegant style */}
+          <div className="bg-gradient-to-b from-[#D4AF37]/10 to-transparent border-b-2 border-[#D4AF37]/30 py-16">
+            <div className="max-w-6xl mx-auto px-4 text-center">
+              <div className="inline-block mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="h-px w-24 bg-gradient-to-r from-transparent to-[#D4AF37]"></div>
+                  <Zap className="h-10 w-10 text-[#D4AF37]" />
+                  <div className="h-px w-24 bg-gradient-to-l from-transparent to-[#D4AF37]"></div>
+                </div>
+              </div>
+              <h1 className="text-8xl font-black text-[#D4AF37] mb-4 tracking-wide"
+                style={{ fontFamily: game.font.display }}>
+                2XKO
+              </h1>
+              <p className="text-[#C89B3C] text-xl tracking-[0.5em] uppercase">Tag Team Fighter</p>
+            </div>
+          </div>
+
+          {/* Team Selection - Premium card */}
+          <div className="max-w-4xl mx-auto px-4 py-20">
+            <div className="text-center mb-16">
+              <h2 className="text-5xl font-bold text-[#D4AF37] mb-4" style={{ fontFamily: game.font.display }}>
+                Find Your Partner
+              </h2>
+              <div className="h-px w-64 mx-auto bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
+            </div>
+
             {game.teamSizes.map((team) => (
               <button
                 key={team.size}
                 onClick={() => setSelectedTeamSize(team.size)}
-                className={`relative p-8 rounded-2xl border-2 transition-all transform hover:scale-105 ${
+                className={`w-full max-w-2xl mx-auto block mb-16 p-12 rounded-lg transition-all transform hover:scale-105 ${
                   selectedTeamSize === team.size
-                    ? 'scale-105'
-                    : 'border-gray-700 hover:border-gray-600'
+                    ? 'bg-gradient-to-br from-[#D4AF37]/20 to-[#C89B3C]/10 border-2 border-[#D4AF37] shadow-2xl shadow-[#D4AF37]/30'
+                    : 'bg-gradient-to-br from-gray-900/50 to-gray-800/30 border-2 border-gray-700/50'
                 }`}
-                style={{
-                  borderColor:
-                    selectedTeamSize === team.size ? game.theme.primary : undefined,
-                  backgroundColor:
-                    selectedTeamSize === team.size
-                      ? `${game.theme.primary}15`
-                      : '#1a1a1a80',
-                  boxShadow:
-                    selectedTeamSize === team.size
-                      ? `0 0 30px ${game.theme.primary}40`
-                      : undefined,
-                }}
               >
-                {/* Glow effect when selected */}
-                {selectedTeamSize === team.size && (
-                  <div
-                    className="absolute inset-0 rounded-2xl blur-xl opacity-50"
-                    style={{ backgroundColor: game.theme.primary }}
-                  />
-                )}
-
-                <div className="relative text-center">
-                  <Users
-                    className="h-16 w-16 mx-auto mb-4"
-                    style={{
-                      color:
-                        selectedTeamSize === team.size
-                          ? game.theme.primary
-                          : '#9ca3af',
-                    }}
-                  />
-                  <h3 className="text-2xl font-bold mb-2">{team.label}</h3>
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <Users className="h-4 w-4 text-gray-400" />
-                    <p className="text-sm text-gray-400">{team.slots} Players</p>
+                <div className="text-center">
+                  <div className="inline-block p-8 rounded-full bg-[#D4AF37]/10 mb-6">
+                    <Users className="h-16 w-16 text-[#D4AF37]" />
                   </div>
-                  <div
-                    className="text-4xl font-black"
-                    style={{
-                      color:
-                        selectedTeamSize === team.size ? game.theme.primary : '#fff',
-                    }}
-                  >
-                    ₹{team.price}
-                  </div>
+                  <h3 className="text-4xl font-bold mb-4 text-[#D4AF37]" style={{ fontFamily: game.font.display }}>
+                    {team.label}
+                  </h3>
+                  <p className="text-gray-400 mb-6 text-lg">2v2 Tag Team Fighter</p>
+                  <div className="text-6xl font-bold text-[#D4AF37]">₹{team.price}</div>
                 </div>
               </button>
             ))}
+
+            {/* Form - Elegant design */}
+            {selectedTeamSize && (
+              <div className="max-w-3xl mx-auto bg-gradient-to-br from-gray-900/80 to-blue-950/50 backdrop-blur-xl rounded-lg border border-[#D4AF37]/30 p-10">
+
+                <div className="text-center mb-10">
+                  <h2 className="text-4xl font-bold text-[#D4AF37] mb-2" style={{ fontFamily: game.font.display }}>
+                    Fighter Profile
+                  </h2>
+                  <div className="h-px w-32 mx-auto bg-[#D4AF37]"></div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 mb-8">
+                  <div>
+                    <label className="text-base font-semibold text-[#C89B3C] mb-3 block tracking-wide">Rank Division</label>
+                    <select
+                      value={rank}
+                      onChange={(e) => setRank(e.target.value)}
+                      className="w-full px-6 py-4 bg-black/60 border border-[#D4AF37]/30 focus:border-[#D4AF37] rounded-lg outline-none text-lg"
+                    >
+                      <option value="">Select Your Rank</option>
+                      {game.ranks.map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-base font-semibold text-[#C89B3C] mb-3 block tracking-wide">Server Region</label>
+                      <select
+                        value={region}
+                        onChange={(e) => setRegion(e.target.value)}
+                        className="w-full px-6 py-4 bg-black/60 border border-[#D4AF37]/30 focus:border-[#D4AF37] rounded-lg outline-none text-lg"
+                      >
+                        <option value="">Select Region</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="singapore">Singapore</option>
+                        <option value="bahrain">Bahrain</option>
+                        <option value="hong-kong">Hong Kong</option>
+                        <option value="tokyo">Tokyo</option>
+                        <option value="sydney">Sydney</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-base font-semibold text-[#C89B3C] mb-3 block tracking-wide">Preferred Time</label>
+                      <select
+                        value={playTime}
+                        onChange={(e) => setPlayTime(e.target.value)}
+                        className="w-full px-6 py-4 bg-black/60 border border-[#D4AF37]/30 focus:border-[#D4AF37] rounded-lg outline-none text-lg"
+                      >
+                        <option value="">Select Time</option>
+                        <option value="morning">Morning</option>
+                        <option value="afternoon">Afternoon</option>
+                        <option value="evening">Evening</option>
+                        <option value="night">Night</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handlePayment}
+                  disabled={loading}
+                  className="w-full py-6 bg-gradient-to-r from-[#D4AF37] to-[#C89B3C] hover:from-[#C89B3C] hover:to-[#D4AF37] disabled:from-gray-700 disabled:to-gray-700 font-bold text-2xl rounded-lg transition-all shadow-lg shadow-[#D4AF37]/30"
+                  style={{ fontFamily: game.font.display }}
+                >
+                  {loading ? 'Processing...' : user ? `Find Partner - ₹${selectedOption?.price}` : 'Sign In'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
-      </section>
 
-      {/* Details Form */}
-      {selectedTeamSize && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-20">
-          <div
-            className="rounded-3xl p-8 md:p-10 border-2"
-            style={{
-              backgroundColor: '#0a0a0a90',
-              borderColor: `${game.theme.primary}40`,
-              backdropFilter: 'blur(10px)',
-            }}
-          >
-            {/* Section Header */}
-            <div className="flex items-center gap-3 mb-8">
-              <div
-                className="p-3 rounded-xl"
-                style={{ backgroundColor: `${game.theme.primary}20` }}
-              >
-                <Zap className="h-6 w-6" style={{ color: game.theme.primary }} />
-              </div>
-              <h2 className="text-3xl font-bold">Player Details</h2>
-            </div>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      </div>
+    );
+  }
 
-            <div className="space-y-6">
-              {/* Rank Dropdown */}
-              <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold mb-3 uppercase tracking-wide">
-                  <Trophy className="h-5 w-5" style={{ color: game.theme.primary }} />
-                  <span style={{ color: game.theme.primary }}>Current Rank</span>
-                </label>
-                <select
-                  value={rank}
-                  onChange={(e) => setRank(e.target.value)}
-                  className="w-full px-5 py-4 bg-gray-900/80 border-2 border-gray-700 rounded-xl focus:outline-none transition-all text-lg font-medium"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = game.theme.primary;
-                  }}
-                  onBlur={(e) => {
-                    if (!rank) e.target.style.borderColor = '#374151';
-                  }}
-                >
-                  <option value="">Select Your Rank</option>
-                  {game.ranks.map((rankOption) => (
-                    <option key={rankOption} value={rankOption}>
-                      {rankOption}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Region */}
-              <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold mb-3 uppercase tracking-wide">
-                  <MapPin className="h-5 w-5" style={{ color: game.theme.primary }} />
-                  <span style={{ color: game.theme.primary }}>Region</span>
-                </label>
-                <select
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                  className="w-full px-5 py-4 bg-gray-900/80 border-2 border-gray-700 rounded-xl focus:outline-none transition-all text-lg font-medium"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = game.theme.primary;
-                  }}
-                  onBlur={(e) => {
-                    if (!region) e.target.style.borderColor = '#374151';
-                  }}
-                >
-                  <option value="">Select Region</option>
-                  <option value="mumbai">Mumbai (Asia South)</option>
-                  <option value="singapore">Singapore (SEA)</option>
-                  <option value="bahrain">Bahrain (Middle East)</option>
-                  <option value="hong-kong">Hong Kong (Asia East)</option>
-                  <option value="tokyo">Tokyo (Japan)</option>
-                  <option value="sydney">Sydney (Oceania)</option>
-                </select>
-              </div>
-
-              {/* Play Time */}
-              <div>
-                <label className="flex items-center space-x-2 text-sm font-semibold mb-3 uppercase tracking-wide">
-                  <Clock className="h-5 w-5" style={{ color: game.theme.primary }} />
-                  <span style={{ color: game.theme.primary }}>Preferred Play Time</span>
-                </label>
-                <select
-                  value={playTime}
-                  onChange={(e) => setPlayTime(e.target.value)}
-                  className="w-full px-5 py-4 bg-gray-900/80 border-2 border-gray-700 rounded-xl focus:outline-none transition-all text-lg font-medium"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = game.theme.primary;
-                  }}
-                  onBlur={(e) => {
-                    if (!playTime) e.target.style.borderColor = '#374151';
-                  }}
-                >
-                  <option value="">Select Time</option>
-                  <option value="morning">🌅 Morning (6 AM - 12 PM)</option>
-                  <option value="afternoon">☀️ Afternoon (12 PM - 6 PM)</option>
-                  <option value="evening">🌆 Evening (6 PM - 12 AM)</option>
-                  <option value="night">🌙 Night (12 AM - 6 AM)</option>
-                </select>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                onClick={handlePayment}
-                disabled={loading}
-                className="w-full py-5 rounded-xl font-black text-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none mt-8 relative overflow-hidden group"
-                style={{
-                  backgroundColor: game.theme.primary,
-                  color: '#fff',
-                  boxShadow: `0 10px 40px ${game.theme.primary}40`,
-                }}
-              >
-                {/* Button glow effect */}
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"
-                  style={{ backgroundColor: game.theme.primary }}
-                />
-                <span className="relative z-10">
-                  {loading
-                    ? 'PROCESSING...'
-                    : user
-                    ? `PAY ₹${selectedOption?.price} & FIND TEAMMATES`
-                    : 'SIGN IN TO CONTINUE'}
-                </span>
-              </button>
-
-              {/* Info Text */}
-              <div
-                className="text-center p-4 rounded-xl border"
-                style={{
-                  backgroundColor: `${game.theme.primary}10`,
-                  borderColor: `${game.theme.primary}30`,
-                }}
-              >
-                <p className="text-sm font-medium" style={{ color: game.theme.primary }}>
-                  ⚡ You will be matched with skilled teammates after successful payment
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Add Razorpay Script */}
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-    </div>
-  );
+  return null;
 }
