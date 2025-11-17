@@ -111,9 +111,20 @@ export default function GamePage() {
 
             toast.success('Payment successful! Request created.');
             router.push('/dashboard');
-          } catch (error) {
+          } catch (error: any) {
             console.error('Error saving request:', error);
-            toast.error('Payment successful but failed to save request');
+            const errorMsg = error?.message || error?.code || 'Unknown error';
+            toast.error(`Payment successful! But couldn't save request: ${errorMsg}. Check console for details.`, {
+              duration: 8000,
+            });
+            // Log detailed error for debugging
+            console.error('Firestore Error Details:', {
+              error,
+              userId: user.uid,
+              game: game.id,
+              teamSize: selectedTeamSize,
+            });
+            alert(`IMPORTANT: Payment was successful!\n\nPayment ID: ${response.razorpay_payment_id}\n\nHowever, we couldn't save your request to the database.\n\nError: ${errorMsg}\n\nPlease contact support with your Payment ID and check the troubleshooting guide (SETUP_TROUBLESHOOTING.md)`);
           }
         },
         prefill: {
