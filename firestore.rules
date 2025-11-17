@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Team Requests Collection
+    match /teamRequests/{requestId} {
+      // Allow authenticated users to read their own requests
+      allow read: if request.auth != null &&
+                     resource.data.userId == request.auth.uid;
+
+      // Allow authenticated users to create new requests
+      allow create: if request.auth != null &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['userId', 'game', 'teamSize', 'rank', 'region', 'preferredPlayTime', 'price', 'status', 'createdAt']);
+
+      // Allow users to update their own requests
+      allow update: if request.auth != null &&
+                       resource.data.userId == request.auth.uid;
+
+      // Allow users to delete their own requests
+      allow delete: if request.auth != null &&
+                       resource.data.userId == request.auth.uid;
+    }
+
+    // List all requests (admin only - optional)
+    match /teamRequests/{requestId} {
+      allow list: if request.auth != null;
+    }
+  }
+}
