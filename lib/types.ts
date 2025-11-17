@@ -41,5 +41,6 @@ export interface GameConfig {
     price: number;
     slots: number;
   }[];
+  ranks: string[];
   image: string;
 }

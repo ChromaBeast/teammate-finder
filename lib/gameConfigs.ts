@@ -15,6 +15,17 @@ export const gameConfigs: GameConfig[] = [
       { size: 'trio', label: 'Find 1 in Trio', price: 150, slots: 3 },
       { size: '5-stack', label: 'Find 1 in 5-Stack', price: 250, slots: 5 },
     ],
+    ranks: [
+      'Iron 1', 'Iron 2', 'Iron 3',
+      'Bronze 1', 'Bronze 2', 'Bronze 3',
+      'Silver 1', 'Silver 2', 'Silver 3',
+      'Gold 1', 'Gold 2', 'Gold 3',
+      'Platinum 1', 'Platinum 2', 'Platinum 3',
+      'Diamond 1', 'Diamond 2', 'Diamond 3',
+      'Ascendant 1', 'Ascendant 2', 'Ascendant 3',
+      'Immortal 1', 'Immortal 2', 'Immortal 3',
+      'Radiant'
+    ],
     image: '/images/valorant-bg.jpg',
   },
   {
@@ -29,6 +40,16 @@ export const gameConfigs: GameConfig[] = [
     teamSizes: [
       { size: 'duo', label: 'Find a Duo', price: 50, slots: 2 },
       { size: 'trio', label: 'Find 1 in Trio', price: 150, slots: 3 },
+    ],
+    ranks: [
+      'Rookie I', 'Rookie II', 'Rookie III', 'Rookie IV',
+      'Bronze I', 'Bronze II', 'Bronze III', 'Bronze IV',
+      'Silver I', 'Silver II', 'Silver III', 'Silver IV',
+      'Gold I', 'Gold II', 'Gold III', 'Gold IV',
+      'Platinum I', 'Platinum II', 'Platinum III', 'Platinum IV',
+      'Diamond I', 'Diamond II', 'Diamond III', 'Diamond IV',
+      'Master',
+      'Predator'
     ],
     image: '/images/apex-bg.jpg',
   },
@@ -45,6 +66,14 @@ export const gameConfigs: GameConfig[] = [
       { size: 'duo', label: 'Find a Duo', price: 50, slots: 2 },
       { size: 'squad', label: 'Find Squad Member', price: 250, slots: 4 },
     ],
+    ranks: [
+      'Bronze I', 'Bronze II', 'Bronze III',
+      'Silver I', 'Silver II', 'Silver III',
+      'Gold I', 'Gold II', 'Gold III',
+      'Platinum I', 'Platinum II', 'Platinum III',
+      'Diamond I', 'Diamond II', 'Diamond III',
+      'Elite', 'Champion', 'Unreal'
+    ],
     image: '/images/fortnite-bg.jpg',
   },
   {
@@ -58,6 +87,11 @@ export const gameConfigs: GameConfig[] = [
     },
     teamSizes: [
       { size: 'duo', label: 'Find a Partner', price: 50, slots: 2 },
+    ],
+    ranks: [
+      'Iron', 'Bronze', 'Silver', 'Gold',
+      'Platinum', 'Emerald', 'Diamond',
+      'Master', 'Grandmaster', 'Challenger'
     ],
     image: '/images/2xko-bg.jpg',
   },
